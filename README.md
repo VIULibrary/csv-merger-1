@@ -4,3 +4,5 @@ Use in conjunction with the [DataCite Bulk DOI Creator](https://github.com/VIULi
 
 **CSV-MERGER-1 &rarr; [DataCite Bulk DOI Creator](https://github.com/VIULibrary/datacite-bulk-doi-creator) &rarr; [csv-merger-2](https://github.com/VIULibrary/csv-merger-2)**
 
+## Usage
+todo . . . 

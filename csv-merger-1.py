@@ -23,12 +23,6 @@ def map_type(dspace_type):
         "Image": "Image",
         "Magazine Article": "Text",
         "Paper": "Text",
-        #"Journal Article": "Text",
-        #"Conference Paper": "Text",
-        #"Video": "Audiovisual",
-        #"Audio": "Audiovisual",
-        #"Map": "Map",
-        #"Software": "Software"
     }
     return type_mapping.get(dspace_type, "Text") # Default to "Text" if no mapping is found
 
@@ -66,29 +60,32 @@ with open(dspace_csv, mode="r", encoding="utf-8") as dspace_file:
                 source = row[uri_field].split("||")[0].strip()
                 break
 
-        # Handle contributors (author > other > editor > advisor)
-        contributors = {}
-        for field_group in ["author", "other", "editor", "advisor"]:
-            contributors[field_group] = row.get(f"dc.contributor.{field_group}[]", row.get(f"dc.contributor.{field_group}", "")).split("||")
+        # Handle contributors dynamically (author > other > editor > advisor)
+        contributors = []
 
-        # Consolidate contributors in priority order
-        all_contributors = (
-            contributors["author"] + 
-            contributors["other"] + 
-            contributors["editor"] + 
-            contributors["advisor"]
-        )
-        all_contributors = [
-            name.split("::")[0].strip().rstrip(".")  # Remove metadata and trailing periods
-            for name in all_contributors if name.strip()
-        ]
+        def get_field_data(row, base_field_name):
+            """Retrieve the first non-empty field value from variations of a base field name."""
+            for suffix in ["[en]", "[]", ""]:
+                value = row.get(f"{base_field_name}{suffix}", "").strip()
+                if value:
+                    return value
+            return ""
+
+        for field_group in ["author", "other", "editor", "advisor"]:
+            # Retrieve data for the current contributor group
+            field_data = get_field_data(row, f"dc.contributor.{field_group}")
+            if field_data:
+                contributors.extend([
+                    re.sub(r"::.*", "", name).strip().rstrip(".")  # Remove metadata (::...) and trailing periods
+                    for name in field_data.split("||") if name.strip()
+                ])
 
         # Assign creator1 and creator2
-        creator1, creator2 = ("Unknown", "") if len(all_contributors) == 0 else ("", "")
-        if len(all_contributors) > 0:
-            creator1 = reverse_name_order(all_contributors[0])
-        if len(all_contributors) > 1:
-            creator2 = reverse_name_order(all_contributors[1])
+        if len(contributors) == 0:
+            creator1, creator2 = "Unknown", ""
+        else:
+            creator1 = reverse_name_order(contributors[0])
+            creator2 = reverse_name_order(contributors[1]) if len(contributors) > 1 else ""
 
         # Split creator names into given and family parts
         def split_name(name):

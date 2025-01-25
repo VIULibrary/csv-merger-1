@@ -4,5 +4,11 @@ Use in conjunction with the [DataCite Bulk DOI Creator](https://github.com/VIULi
 
 **CSV-MERGER-1 &rarr; [DataCite Bulk DOI Creator](https://github.com/VIULibrary/datacite-bulk-doi-creator) &rarr; [csv-merger-2](https://github.com/VIULibrary/csv-merger-2)**
 
+
+## Installation
+1. [Install Python 3](https://www.python.org/about/gettingstarted/)
+2. [Install the csv module](https://docs.python.org/3/installing/index.html)
+
+
 ## Usage
 todo . . . 
